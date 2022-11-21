@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarpoolApi", "CarpoolApi\CarpoolApi.csproj", "{1099C988-5655-461A-ABED-D0AF02FA1111}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TecAlliance.Carpools.Api", "CarpoolApi\TecAlliance.Carpools.Api.csproj", "{1099C988-5655-461A-ABED-D0AF02FA1111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TecAlliance.Carpools.Business", "BusinessService\TecAlliance.Carpools.Business.csproj", "{ED087DDC-B1E4-46DB-9404-29584BEDC116}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TecAlliance.Carpools.Data", "DataService\TecAlliance.Carpools.Data.csproj", "{2CBEA82A-8008-4C21-87B0-CCEBD99C0EF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{1099C988-5655-461A-ABED-D0AF02FA1111}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1099C988-5655-461A-ABED-D0AF02FA1111}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1099C988-5655-461A-ABED-D0AF02FA1111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED087DDC-B1E4-46DB-9404-29584BEDC116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED087DDC-B1E4-46DB-9404-29584BEDC116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED087DDC-B1E4-46DB-9404-29584BEDC116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED087DDC-B1E4-46DB-9404-29584BEDC116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CBEA82A-8008-4C21-87B0-CCEBD99C0EF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CBEA82A-8008-4C21-87B0-CCEBD99C0EF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CBEA82A-8008-4C21-87B0-CCEBD99C0EF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CBEA82A-8008-4C21-87B0-CCEBD99C0EF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

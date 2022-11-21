@@ -3,7 +3,7 @@ using TecAlliance.Carpools.Data.Models;
 
 namespace DataService
 {
-    public class UserDataService
+    public class UserDataService : IUserDataService
     {
         public string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
 
@@ -12,7 +12,7 @@ namespace DataService
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive,Deleted)" +
-                    $"VALUES('{user.Password}','{user.FirstName}','{user.LastName}','{user.CanDrive}','{user.Deleted}')";
+                    $"VALUES('{user.Password}','{user.FirstName}','{user.LastName}','{Convert.ToInt32(user.CanDrive)}','{Convert.ToInt32(user.Deleted)}')";
                 SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
                 command.BeginExecuteNonQuery();
@@ -77,7 +77,7 @@ namespace DataService
             {
                 if (GetUserByID(user.UserID).Password == user.Password)
                 {
-                    string queryString = $"UPDATE Users SET Firstname = {user.FirstName}, Lastname = {user.LastName}, CanDrive = {Convert.ToBoolean(user.CanDrive)} WHERE UserID = {user.UserID}";
+                    string queryString = $"UPDATE Users SET Firstname = '{user.FirstName}', Lastname = '{user.LastName}', CanDrive = {Convert.ToInt32(user.CanDrive)} WHERE UserID = {user.UserID}";
                     SqlCommand cmd = new SqlCommand(queryString, connection);
                     connection.Open();
                     cmd.BeginExecuteNonQuery();

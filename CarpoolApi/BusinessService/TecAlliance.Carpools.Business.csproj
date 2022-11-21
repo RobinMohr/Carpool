@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DataService\TecAlliance.Carpools.Data.csproj" />
+  </ItemGroup>
+
 </Project>
