@@ -21,7 +21,6 @@ namespace TecAlliance.Carpools.Business
             _userDataService = userDataService;
         }
 
-
         public List<UserDto> GetAllUser()
         {
             try
@@ -36,6 +35,18 @@ namespace TecAlliance.Carpools.Business
                     }
                 }
                 return allUserDtos;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public UserDto GetUserByID(int userID)
+        {
+            try
+            {
+                return ConvertUserToDto(_userDataService.GetUserByID(userID));
             }
             catch
             {

@@ -93,10 +93,13 @@ namespace DataService
                 var userToDelete = GetUserByID(userID);
                 if (userToDelete.Password == password)
                 {
-                    string queryString = $"UPDATE Users SET Deleted = {!userToDelete.Deleted} WHERE UserID = {userID}";
+                    string queryString = $"UPDATE Users SET Deleted = {!userToDelete.Deleted} WHERE UserID = {userID}" +
+                        $"UPDATE CarpoolPassengers SET Deleted = {!userToDelete.Deleted} WHERE PassengerID = {userID}" +
+                        $"UPDATE Carpools SET CarpoolDriverID = {Convert.ToInt32(!userToDelete.Deleted)} WHERE CarpoolDriverID = {userID}";
+
                     SqlCommand cmd = new SqlCommand(queryString, connection);
                     connection.Open();
-                    cmd.BeginExecuteNonQuery();
+                    cmd.BeginExecuteNonQuery();                   
                 }
             }
             return GetUserByID(userID);

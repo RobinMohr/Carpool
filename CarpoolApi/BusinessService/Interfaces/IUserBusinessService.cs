@@ -7,5 +7,6 @@ namespace TecAlliance.Carpools.Business.Interfaces
     {
         UserDto ConvertUserToDto(User user);
         List<UserDto> GetAllUser();
+        UserDto GetUserByID(int userID);
     }
 }

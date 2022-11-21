@@ -29,5 +29,20 @@ namespace TecAlliance.Carpools.Api.Controllers
                 return NotFound();
             }
         }
+
+        [HttpGet("{UserID}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserDto>> GetUserByID(int UserID)
+        {
+            try
+            {
+                return _userBusinessService.GetUserByID(UserID);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
     }
 }
