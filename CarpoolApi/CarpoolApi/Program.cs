@@ -1,6 +1,7 @@
 using DataService;
 using TecAlliance.Carpools.Business;
 using TecAlliance.Carpools.Business.Interfaces;
+using TecAlliance.Carpools.Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

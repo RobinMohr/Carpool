@@ -1,11 +1,12 @@
-﻿using DataService;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using TecAlliance.Carpools.Business.Interfaces;
 using TecAlliance.Carpools.Business.Models;
+using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Models;
 
 namespace TecAlliance.Carpools.Business
@@ -54,9 +55,38 @@ namespace TecAlliance.Carpools.Business
             }
         }
 
+        public UserDto ChangeUserData(User user, string OldPassword)
+        {
+            try
+            {
+                return ConvertUserToDto(_userDataService.UpdateUser(user, OldPassword));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public UserDto CreateNewUser(string password, string firstname, string lastname, bool canDrive)
+        {
+            try
+            {
+                return ConvertUserToDto(_userDataService.AddUser(new User(0, password, firstname, lastname, canDrive, false)));
+
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public UserDto ConvertUserToDto(User user)
         {
             return new UserDto(user.UserID, user.FirstName, user.LastName, user.CanDrive);
         }
+
+
+
+
     }
 }

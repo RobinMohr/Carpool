@@ -5,7 +5,9 @@ namespace TecAlliance.Carpools.Business.Interfaces
 {
     public interface IUserBusinessService
     {
+        UserDto ChangeUserData(User user, string OldPassword);
         UserDto ConvertUserToDto(User user);
+        UserDto CreateNewUser(string password, string firstname, string lastname, bool canDrive);
         List<UserDto> GetAllUser();
         UserDto GetUserByID(int userID);
     }

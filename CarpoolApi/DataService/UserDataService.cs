@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Models;
 
 namespace DataService
@@ -7,15 +8,30 @@ namespace DataService
     {
         public string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
 
-        public void AddUser(User user)
+        public User AddUser(User user)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive,Deleted)" +
-                    $"VALUES('{user.Password}','{user.FirstName}','{user.LastName}','{Convert.ToInt32(user.CanDrive)}','{Convert.ToInt32(user.Deleted)}')";
+                string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive,Deleted,ModifiedDate)" +
+                    $"VALUES('{user.Password}','{user.FirstName}','{user.LastName}','{Convert.ToInt32(user.CanDrive)}','{Convert.ToInt32(false)}',GETDATE())";
                 SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
                 command.BeginExecuteNonQuery();
+                connection.Close();
+
+                connection.Open();
+                string queryString1 = $"SELECT TOP (1) FROM Users ORDER BY UserID DESC";
+                SqlCommand command1 = new SqlCommand(queryString1, connection);
+                SqlDataReader reader = command.ExecuteReader();
+                
+                    var user1 = new User(Convert.ToInt32(reader["UserID"]),
+                        reader["Password"].ToString(),
+                        reader["Firstname"].ToString(),
+                        reader["Lastname"].ToString(),
+                        Convert.ToBoolean(reader["CanDrive"]),
+                        Convert.ToBoolean(reader["Deleted"]));
+                    reader.Close();
+                    return user1;
             }
         }
 
@@ -71,13 +87,13 @@ namespace DataService
             }
         }
 
-        public User UpdateUser(User user)
+        public User UpdateUser(User user, string OldPassword)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                if (GetUserByID(user.UserID).Password == user.Password)
+                if (GetUserByID(user.UserID).Password == OldPassword)
                 {
-                    string queryString = $"UPDATE Users SET Firstname = '{user.FirstName}', Lastname = '{user.LastName}', CanDrive = {Convert.ToInt32(user.CanDrive)} WHERE UserID = {user.UserID}";
+                    string queryString = $"UPDATE Users SET Password = '{user.Password}', Firstname = '{user.FirstName}', Lastname = '{user.LastName}', CanDrive = {Convert.ToInt32(user.CanDrive)} WHERE UserID = {user.UserID}";
                     SqlCommand cmd = new SqlCommand(queryString, connection);
                     connection.Open();
                     cmd.BeginExecuteNonQuery();
@@ -95,11 +111,11 @@ namespace DataService
                 {
                     string queryString = $"UPDATE Users SET Deleted = {!userToDelete.Deleted} WHERE UserID = {userID}" +
                         $"UPDATE CarpoolPassengers SET Deleted = {!userToDelete.Deleted} WHERE PassengerID = {userID}" +
-                        $"UPDATE Carpools SET CarpoolDriverID = {Convert.ToInt32(!userToDelete.Deleted)} WHERE CarpoolDriverID = {userID}";
+                        $"UPDATE Carpools SET CarpoolDriverID = null, WHERE CarpoolDriverID = {userID}";
 
                     SqlCommand cmd = new SqlCommand(queryString, connection);
                     connection.Open();
-                    cmd.BeginExecuteNonQuery();                   
+                    cmd.BeginExecuteNonQuery();
                 }
             }
             return GetUserByID(userID);
