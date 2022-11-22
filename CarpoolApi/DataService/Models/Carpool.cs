@@ -9,7 +9,8 @@ namespace TecAlliance.Carpools.Data.Models
     public class Carpool
     {
         public int CarpoolId { get; set; }
-        public User Owner { get; set; }
+        string Password { get; set; }
+        public User Driver { get; set; }
         public string StartingPoint { get; set; }
         public string EndingPoint { get; set; }
         public int FreeSpaces { get; set; }
@@ -17,10 +18,11 @@ namespace TecAlliance.Carpools.Data.Models
         public string Time { get; set; }
         public bool Deleted { get; set; }
 
-        public Carpool(int carpoolId, User owner, string startingPoint, string endingPoint, int freeSpaces, List<User> passengers, string time, bool deleted)
+        public Carpool(int carpoolId,string password, User driver, string startingPoint, string endingPoint, int freeSpaces, List<User> passengers, string time, bool deleted)
         {
             CarpoolId = carpoolId;
-            Owner = owner;
+            Password = password;
+            Driver = driver;
             StartingPoint = startingPoint;
             EndingPoint = endingPoint;
             FreeSpaces = freeSpaces;

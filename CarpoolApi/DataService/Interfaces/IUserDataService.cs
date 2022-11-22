@@ -4,9 +4,10 @@ namespace TecAlliance.Carpools.Data.Interfaces
 {
     public interface IUserDataService
     {
-        User AddUser(User user);
+        void AddUser(User user);
         User DeleteUser(int userID, string password);
         List<User> GetAllUser();
+        User GetNewestUser();
         User GetUserByID(int userId);
         User UpdateUser(User user, string OldPassword);
     }

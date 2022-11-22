@@ -15,6 +15,7 @@ namespace TecAlliance.Carpools.Business
     public class UserBusinessService : IUserBusinessService
     {
         private IUserDataService _userDataService;
+
         private List<User> allUser = new List<User>();
 
         public UserBusinessService(IUserDataService userDataService)
@@ -24,66 +25,48 @@ namespace TecAlliance.Carpools.Business
 
         public List<UserDto> GetAllUser()
         {
-            try
+            allUser = _userDataService.GetAllUser();
+            List<UserDto> allUserDtos = new List<UserDto>();
+            foreach (User user in allUser)
             {
-                allUser = _userDataService.GetAllUser();
-                List<UserDto> allUserDtos = new List<UserDto>();
-                foreach (User user in allUser)
+                if (!user.Deleted)
                 {
-                    if (!user.Deleted)
-                    {
-                        allUserDtos.Add(ConvertUserToDto(user));
-                    }
+                    allUserDtos.Add(ConvertUserToDto(user));
                 }
-                return allUserDtos;
             }
-            catch
-            {
-                return null;
-            }
+            return allUserDtos;
         }
 
         public UserDto GetUserByID(int userID)
         {
-            try
-            {
-                return ConvertUserToDto(_userDataService.GetUserByID(userID));
-            }
-            catch
-            {
-                return null;
-            }
+            return ConvertUserToDto(_userDataService.GetUserByID(userID));
         }
 
         public UserDto ChangeUserData(User user, string OldPassword)
         {
-            try
-            {
-                return ConvertUserToDto(_userDataService.UpdateUser(user, OldPassword));
-            }
-            catch
-            {
-                return null;
-            }
+            return ConvertUserToDto(_userDataService.UpdateUser(user, OldPassword));
         }
 
         public UserDto CreateNewUser(string password, string firstname, string lastname, bool canDrive)
         {
-            try
-            {
-                return ConvertUserToDto(_userDataService.AddUser(new User(0, password, firstname, lastname, canDrive, false)));
-
-            }
-            catch
-            {
-                return null;
-            }
+            _userDataService.AddUser(new User(0, password, firstname, lastname, canDrive, false));
+            return ConvertUserToDto(_userDataService.GetNewestUser());
         }
+
+        public UserDto DeleteUserByID(int userID, string password)
+        {
+            return ConvertUserToDto(_userDataService.DeleteUser(userID, password));
+        }
+
+
+
 
         public UserDto ConvertUserToDto(User user)
         {
             return new UserDto(user.UserID, user.FirstName, user.LastName, user.CanDrive);
         }
+
+
 
 
 

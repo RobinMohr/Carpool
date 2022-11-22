@@ -10,10 +10,12 @@ namespace TecAlliance.Carpools.Api.Controllers
     public class UserController : Controller
     {
         private IUserBusinessService _userBusinessService;
+        private ICarpoolUserBusinessService _carpoolUserBusinessService;
 
-        public UserController(IUserBusinessService userBusinessService)
+        public UserController(IUserBusinessService userBusinessService, ICarpoolUserBusinessService carpoolUserBusinessService)
         {
             _userBusinessService = userBusinessService;
+            _carpoolUserBusinessService = carpoolUserBusinessService;
         }
 
         [HttpGet]
@@ -66,12 +68,44 @@ namespace TecAlliance.Carpools.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserDto>> CreateNewUser(string password, string firstname, string lastname, bool canDrive)
         {
-      
+            try
+            {
                 return _userBusinessService.CreateNewUser(password, firstname, lastname, canDrive);
-        
-        
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
 
-            
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserDto>> DeleteUser(int id, string password)
+        {
+            try
+            {
+                return _userBusinessService.DeleteUserByID(id, password);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("yourCarpools/userID")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<CarpoolDto>>> ViewCurrentCarpools(int userID)
+        {
+            try
+            {
+                return _carpoolUserBusinessService.CurrentCarpoolsWhereUserIsPassenger(userID);
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
     }
 }

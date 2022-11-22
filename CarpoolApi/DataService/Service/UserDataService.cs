@@ -6,9 +6,9 @@ namespace DataService
 {
     public class UserDataService : IUserDataService
     {
-        public string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
+        private string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
 
-        public User AddUser(User user)
+        public void AddUser(User user)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -17,21 +17,29 @@ namespace DataService
                 SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
                 command.BeginExecuteNonQuery();
-                connection.Close();
+            }
+        }
 
+        public User GetNewestUser()
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string queryString = $"SELECT TOP(1) * FROM Users ORDER BY ModifiedDate DESC";
+                SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
-                string queryString1 = $"SELECT TOP (1) FROM Users ORDER BY UserID DESC";
-                SqlCommand command1 = new SqlCommand(queryString1, connection);
                 SqlDataReader reader = command.ExecuteReader();
-                
-                    var user1 = new User(Convert.ToInt32(reader["UserID"]),
+                if (reader.Read())
+                {
+                    var user = new User(Convert.ToInt32(reader["UserID"]),
                         reader["Password"].ToString(),
                         reader["Firstname"].ToString(),
                         reader["Lastname"].ToString(),
                         Convert.ToBoolean(reader["CanDrive"]),
                         Convert.ToBoolean(reader["Deleted"]));
                     reader.Close();
-                    return user1;
+                    return user;
+                }
+                return null;
             }
         }
 
@@ -93,7 +101,12 @@ namespace DataService
             {
                 if (GetUserByID(user.UserID).Password == OldPassword)
                 {
-                    string queryString = $"UPDATE Users SET Password = '{user.Password}', Firstname = '{user.FirstName}', Lastname = '{user.LastName}', CanDrive = {Convert.ToInt32(user.CanDrive)} WHERE UserID = {user.UserID}";
+                    string queryString = $"UPDATE Users SET Password = '{user.Password}', " +
+                        $"Firstname = '{user.FirstName}', " +
+                        $"Lastname = '{user.LastName}', " +
+                        $"CanDrive = {Convert.ToInt32(user.CanDrive)} " +
+                        $"ModifiedDate = GETDATE()" +
+                        $"WHERE UserID = {user.UserID}";
                     SqlCommand cmd = new SqlCommand(queryString, connection);
                     connection.Open();
                     cmd.BeginExecuteNonQuery();
@@ -110,7 +123,7 @@ namespace DataService
                 if (userToDelete.Password == password)
                 {
                     string queryString = $"UPDATE Users SET Deleted = {!userToDelete.Deleted} WHERE UserID = {userID}" +
-                        $"UPDATE CarpoolPassengers SET Deleted = {!userToDelete.Deleted} WHERE PassengerID = {userID}" +
+                        $"UPDATE CarpoolPassengers SET Deleted = 1 WHERE PassengerID = {userID}" +
                         $"UPDATE Carpools SET CarpoolDriverID = null, WHERE CarpoolDriverID = {userID}";
 
                     SqlCommand cmd = new SqlCommand(queryString, connection);
