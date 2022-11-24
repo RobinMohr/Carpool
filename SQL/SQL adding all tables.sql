@@ -6,31 +6,24 @@ Password NVARCHAR(50) NOT NULL,
 Firstname VARCHAR(20) NOT NULL,
 Lastname VARCHAR(20) NOT NULL,
 CanDrive BIT NOT NULL,
-Deleted BIT NOT NULL
 )
 
 CREATE TABLE Carpools(
 CarpoolID int IDENTITY(0,1) PRIMARY KEY,
 CarpoolDriverID int FOREIGN KEY REFERENCES Users(UserID),
+Password NVARCHAR(50) NOT NULL,
 Origin VARCHAR(50) NOT NULL,
 Destination VARCHAR(50) NOT NULL,
 FreeSpaces int NOT NULL,
 DepartmentTime SMALLDATETIME NOT NULL,
-Deleted BIT NOT NULL
 )
 
 CREATE TABLE CarpoolPassengers(
 CarpoolID int FOREIGN KEY REFERENCES Carpools(CarpoolID),
 PassengerID int FOREIGN KEY REFERENCES Users(UserID),
-Deleted BIT DEFAULT 0 NOT NULL,
 PRIMARY KEY(CarpoolID,PassengerID)
 )
-  
-ALTER TABLE Users
-ADD ModifiedDate DATETIME;
-
-ALTER TABLE CarpoolPassengers
-ADD ModifiedDate DATETIME;
-
-ALTER TABLE Carpools
-ADD ModifiedDate DATETIME;
+ 
+Drop TABLE CarpoolPassengers
+DROP TABLE Carpools
+DROP TABLE Users

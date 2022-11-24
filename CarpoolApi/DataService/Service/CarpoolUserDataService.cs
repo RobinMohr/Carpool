@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DataService;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Models;
 
 namespace TecAlliance.Carpools.Data.Service
@@ -14,10 +14,12 @@ namespace TecAlliance.Carpools.Data.Service
         private string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
 
         private ICarpoolDataService _carpoolDataService;
+        private IUserDataService _userDataService;
 
-        public CarpoolUserDataService(ICarpoolDataService carpoolDataService)
+        public CarpoolUserDataService(ICarpoolDataService carpoolDataService, IUserDataService userDataService)
         {
             _carpoolDataService = carpoolDataService;
+            _userDataService = userDataService;
         }
 
         public List<Carpool> ViewCarppolsWhereUserIsPassenger(int userID)
@@ -44,8 +46,16 @@ namespace TecAlliance.Carpools.Data.Service
             return carpools;
         }
 
-        public Carpool JoinCarpoolAsDriver()
+        public Carpool JoinCarpoolAsDriver(int carpoolID, int passengerID)
         {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string queryString = $"UPDATE Carpools Set CarpoolDriverID = {passengerID}";
+                SqlCommand cmd = new SqlCommand(queryString, connection);
+                connection.Open();
+                cmd.BeginExecuteNonQuery();
+            }
+            return _carpoolDataService.GetCarpoolByID(carpoolID);
 
         }
 
@@ -53,13 +63,8 @@ namespace TecAlliance.Carpools.Data.Service
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string queryString = $"INSERT INTO CarpoolPassengers" +
-                $"            ([CarpoolID]" +
-                $"           ,[PassengerID]" +
-                $"           ,[Deleted]" +
-                $"           ,[ModifiedDate])" +
-                $"          VALUES" +
-                $"           ({carpoolID},{passengerID},0,GETDATE())";
+                string queryString = $"INSERT INTO CarpoolPassengers([CarpoolID],[PassengerID])" +
+                                    $"VALUES({carpoolID},{passengerID}";
                 SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
                 command.BeginExecuteNonQuery();

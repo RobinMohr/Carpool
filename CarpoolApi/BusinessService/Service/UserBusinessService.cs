@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataService;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -6,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TecAlliance.Carpools.Business.Interfaces;
 using TecAlliance.Carpools.Business.Models;
-using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Models;
 
 namespace TecAlliance.Carpools.Business
@@ -29,10 +29,7 @@ namespace TecAlliance.Carpools.Business
             List<UserDto> allUserDtos = new List<UserDto>();
             foreach (User user in allUser)
             {
-                if (!user.Deleted)
-                {
-                    allUserDtos.Add(ConvertUserToDto(user));
-                }
+                allUserDtos.Add(ConvertUserToDto(user));
             }
             return allUserDtos;
         }
@@ -49,16 +46,14 @@ namespace TecAlliance.Carpools.Business
 
         public UserDto CreateNewUser(string password, string firstname, string lastname, bool canDrive)
         {
-            _userDataService.AddUser(new User(0, password, firstname, lastname, canDrive, false));
-            return ConvertUserToDto(_userDataService.GetNewestUser());
+            _userDataService.AddUser(new User(0, password, firstname, lastname, canDrive));
+            return ConvertUserToDto(new User(0, password, firstname, lastname, canDrive));
         }
 
         public UserDto DeleteUserByID(int userID, string password)
         {
             return ConvertUserToDto(_userDataService.DeleteUser(userID, password));
         }
-
-
 
 
         public UserDto ConvertUserToDto(User user)

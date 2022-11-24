@@ -5,8 +5,7 @@ namespace TecAlliance.Carpools.Business.Interfaces
     public interface ICarpoolBusinessService
     {
         List<CarpoolDto> GetAllCarpools();
-        public CarpoolDto GetCarpoolByID(int userID);
-        public CarpoolDto UpdateCarpoolByID(string ownerPassword, CarpoolDto newCarpoolData);
-
+        CarpoolDto GetCarpoolByID(int userID);
+        CarpoolDto UpdateCarpoolByID(string carpoolPassword, CarpoolDto newCarpoolData);
     }
 }

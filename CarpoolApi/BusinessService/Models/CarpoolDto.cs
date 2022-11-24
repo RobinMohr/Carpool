@@ -13,17 +13,15 @@ namespace TecAlliance.Carpools.Business.Models
         public string StartingPoint { get; set; }
         public string EndingPoint { get; set; }
         public int FreeSpaces { get; set; }
-        public List<UserDto> Passengers { get; set; }
-        public string Time { get; set; }
+        public DateTime Time { get; set; }
 
-        public CarpoolDto(int carpoolId, UserDto driver, string startingPoint, string endingPoint, int freeSpaces, List<UserDto> passengers, string time)
+        public CarpoolDto(int carpoolId, UserDto driver, string startingPoint, string endingPoint, int freeSpaces, DateTime time)
         {
             CarpoolId = carpoolId;
             Driver = driver;
             StartingPoint = startingPoint;
             EndingPoint = endingPoint;
             FreeSpaces = freeSpaces;
-            Passengers = passengers;
             Time = time;
         }
     }

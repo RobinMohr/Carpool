@@ -2,7 +2,6 @@ using DataService;
 using TecAlliance.Carpools.Business;
 using TecAlliance.Carpools.Business.Interfaces;
 using TecAlliance.Carpools.Business.Service;
-using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +21,9 @@ builder.Services.AddScoped<ICarpoolDataService, CarpoolDataService>();
 
 builder.Services.AddScoped<ICarpoolUserBusinessService, CarpoolUserBusinessService>();
 builder.Services.AddScoped<ICarpoolUserDataService, CarpoolUserDataService>();
+
+builder.Services.AddScoped<INewCarpoolDataService, NewCarpoolDataService>();
+
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataService;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using TecAlliance.Carpools.Data.Interfaces;
 using TecAlliance.Carpools.Data.Models;
 
 namespace TecAlliance.Carpools.Data.Service
@@ -14,8 +14,7 @@ namespace TecAlliance.Carpools.Data.Service
     public class CarpoolDataService : ICarpoolDataService
     {
         public string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
-
-        IUserDataService _userDataService;
+        readonly IUserDataService _userDataService;
 
         public CarpoolDataService(IUserDataService userDataService)
         {
@@ -26,8 +25,12 @@ namespace TecAlliance.Carpools.Data.Service
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string queryString = $"SELECT * FROM Carpools WHERE CarpoolID = {carpoolID}";
+                string queryString = $"SELECT * FROM Carpools WHERE CarpoolID = ";
                 SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.Add("@CarpoolID", SqlDbType.Int);
+                command.Parameters["@CarpoolID"].Value = carpoolID;
+
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -57,8 +60,7 @@ namespace TecAlliance.Carpools.Data.Service
                 reader["Destination"].ToString(),
                 (int)reader["FreeSpaces"],
                 AllPassengersInCarpool(id),
-                reader["DepartmentTime"].ToString(),
-                Convert.ToBoolean(reader["Deleted"]));            
+                Convert.ToDateTime(reader["DepartmentTime"]));
         }
 
         public List<Carpool> GetAllCarpools()
@@ -84,8 +86,12 @@ namespace TecAlliance.Carpools.Data.Service
             var users = new List<User>();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string queryString = $"SELECT * FROM CarpoolPassengers WHERE CarpoolID = {carpoolID}";
+                string queryString = $"SELECT * FROM CarpoolPassengers WHERE CarpoolID = @CarpoolID";
                 SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.Add("@CarpoolID", SqlDbType.Int);
+                command.Parameters["@CarpoolID"].Value = carpoolID;
+
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 try
@@ -103,26 +109,40 @@ namespace TecAlliance.Carpools.Data.Service
             return users;
         }
 
-        public Carpool ChangeCarpoolDataByID(Carpool newCarpoolData)
+        public Carpool ChangeCarpoolDataByID(string oldCarpoolPassword, Carpool newCarpoolData)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                //if ()
-                //{
-                //    string queryString = $"UPDATE Users SET Password = '{user.Password}', " +
-                //        $"Firstname = '{user.FirstName}', " +
-                //        $"Lastname = '{user.LastName}', " +
-                //        $"CanDrive = {Convert.ToInt32(user.CanDrive)} " +
-                //        $"ModifiedDate = GETDATE()" +
-                //        $"WHERE UserID = {user.UserID}";
-                //    SqlCommand cmd = new SqlCommand(queryString, connection);
-                //    connection.Open();
-                //    cmd.BeginExecuteNonQuery();
-                //}
-                //else
-                //{
-                //    return null;
-                //}
+                if (oldCarpoolPassword == GetCarpoolByID(newCarpoolData.CarpoolId).Password)
+                {
+                    string queryString =
+                        $"UPDATE Users SET" +
+                        $"CarpoolDriverID = @CarpoolID" +
+                        $"Origin = @Origin" +
+                        $"Destination = @Destination" +
+                        $"FreeSpaces = @FreeSpaces" +
+                        $"DepartmentTime = @DepartmentTime";
+                    SqlCommand command = new SqlCommand(queryString, connection);
+
+                    command.Parameters.Add("@CarpoolID", SqlDbType.Int);
+                    command.Parameters["@CarpoolID"].Value = newCarpoolData.CarpoolId;
+
+                    command.Parameters.Add("@Origin", SqlDbType.VarChar);
+                    command.Parameters["@Origin"].Value = newCarpoolData.StartingPoint;
+
+                    command.Parameters.Add("@Destination", SqlDbType.VarChar);
+                    command.Parameters["@Destination"].Value = newCarpoolData.EndingPoint;
+
+                    command.Parameters.Add("@FreeSpaces", SqlDbType.Int);
+                    command.Parameters["@FreeSpaces"].Value = newCarpoolData.FreeSpaces;
+
+                    connection.Open();
+                    command.BeginExecuteNonQuery();
+                }
+                else
+                {
+                    return null;
+                }
             }
             return GetCarpoolByID(newCarpoolData.CarpoolId);
         }

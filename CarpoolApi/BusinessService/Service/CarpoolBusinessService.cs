@@ -21,6 +21,7 @@ namespace TecAlliance.Carpools.Business.Service
             _carpoolUserBusinessService = carpoolUserBusinessService;
         }
 
+
         public List<CarpoolDto> GetAllCarpools()
         {
             List<CarpoolDto> allCarpoolDtos = new List<CarpoolDto>();
@@ -38,7 +39,7 @@ namespace TecAlliance.Carpools.Business.Service
 
         public CarpoolDto UpdateCarpoolByID(string carpoolPassword, CarpoolDto newCarpoolData)
         {
-            return _carpoolUserBusinessService.ConvertCarpoolToDto(_carpoolDataService.ChangeCarpoolDataByID(
+            return _carpoolUserBusinessService.ConvertCarpoolToDto(_carpoolDataService.ChangeCarpoolDataByID(carpoolPassword,
                 new Carpool(
                     newCarpoolData.CarpoolId,
                     carpoolPassword,
@@ -46,22 +47,13 @@ namespace TecAlliance.Carpools.Business.Service
                              null,
                              newCarpoolData.Driver.FirstName,
                              newCarpoolData.Driver.LastName,
-                             newCarpoolData.Driver.CanDrive,
-                             false
+                             newCarpoolData.Driver.CanDrive
                     ),
                     newCarpoolData.StartingPoint,
                     newCarpoolData.EndingPoint,
                     newCarpoolData.FreeSpaces,
                     new List<User>(),
-                    newCarpoolData.Time,
-                    false)));
-
-
-            //public  CarpoolDto JoinCarpool(int carpoolID, int userID, bool willDrive)
-            //{
-            //    if()
-            //}
-
+                    newCarpoolData.Time)));
         }
     }
 }

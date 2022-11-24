@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using TecAlliance.Carpools.Data.Interfaces;
+﻿using System.Data;
+using System.Data.SqlClient;
 using TecAlliance.Carpools.Data.Models;
 
 namespace DataService
@@ -10,39 +10,26 @@ namespace DataService
 
         public void AddUser(User user)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive,Deleted,ModifiedDate)" +
-                    $"VALUES('{user.Password}','{user.FirstName}','{user.LastName}','{Convert.ToInt32(user.CanDrive)}','{Convert.ToInt32(false)}',GETDATE())";
-                SqlCommand command = new SqlCommand(queryString, connection);
-                connection.Open();
-                command.BeginExecuteNonQuery();
-            }
-        }
+            using SqlConnection connection = new SqlConnection(connectionString);
+            string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive)" +
+                $"VALUES('@UserPassword','@FirstName','@LastName',@CanDrive)";
+            SqlCommand command = new SqlCommand(queryString, connection);
 
-        public User GetNewestUser()
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string queryString = $"SELECT TOP(1) * FROM Users ORDER BY ModifiedDate DESC";
-                SqlCommand command = new SqlCommand(queryString, connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    var user = new User(Convert.ToInt32(reader["UserID"]),
-                        reader["Password"].ToString(),
-                        reader["Firstname"].ToString(),
-                        reader["Lastname"].ToString(),
-                        Convert.ToBoolean(reader["CanDrive"]),
-                        Convert.ToBoolean(reader["Deleted"]));
-                    reader.Close();
-                    return user;
-                }
-                return null;
-            }
-        }
+            command.Parameters.Add("@UserPassword", SqlDbType.NVarChar);
+            command.Parameters["@UserPassword"].Value = user.Password;
 
+            command.Parameters.Add("@FirstName", SqlDbType.VarChar);
+            command.Parameters["@FirstName"].Value = user.FirstName;
+
+            command.Parameters.Add("@LastName", SqlDbType.NVarChar);
+            command.Parameters["@LastName"].Value = user.LastName;
+
+            command.Parameters.Add("@CanDrive", SqlDbType.Bit);
+            command.Parameters["@CanDrive"].Value = Convert.ToInt32(user.CanDrive);
+
+            connection.Open();
+            command.BeginExecuteNonQuery();
+        }
         public List<User> GetAllUser()
         {
             var users = new List<User>();
@@ -56,12 +43,7 @@ namespace DataService
                 {
                     while (reader.Read())
                     {
-                        users.Add(new User(Convert.ToInt32(reader["UserID"]),
-                            reader["Password"].ToString(),
-                            reader["Firstname"].ToString(),
-                            reader["Lastname"].ToString(),
-                            Convert.ToBoolean(reader["CanDrive"]),
-                            Convert.ToBoolean(reader["Deleted"])));
+                        users.Add(GetUser(reader));
                     }
                 }
                 finally
@@ -71,28 +53,35 @@ namespace DataService
             }
             return users;
         }
-
         public User GetUserByID(int userId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string queryString = $"SELECT * FROM Users WHERE UserID = {userId}";
+                string queryString = $"SELECT * FROM Users WHERE UserID = @UserID";
                 SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.Add("@UserID", SqlDbType.Int);
+                command.Parameters["@UserID"].Value = userId;
+
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    var user = new User(Convert.ToInt32(reader["UserID"]),
-                        reader["Password"].ToString(),
-                        reader["Firstname"].ToString(),
-                        reader["Lastname"].ToString(),
-                        Convert.ToBoolean(reader["CanDrive"]),
-                        Convert.ToBoolean(reader["Deleted"]));
+                    User user = GetUser(reader);
                     reader.Close();
                     return user;
                 }
                 return null;
             }
+        }
+
+        private static User GetUser(SqlDataReader reader)
+        {
+            return new User(Convert.ToInt32(reader["UserID"]),
+                reader["Password"].ToString(),
+                reader["Firstname"].ToString(),
+                reader["Lastname"].ToString(),
+                Convert.ToBoolean(reader["CanDrive"]));
         }
 
         public User UpdateUser(User user, string OldPassword)
@@ -101,20 +90,37 @@ namespace DataService
             {
                 if (GetUserByID(user.UserID).Password == OldPassword)
                 {
-                    string queryString = $"UPDATE Users SET Password = '{user.Password}', " +
-                        $"Firstname = '{user.FirstName}', " +
-                        $"Lastname = '{user.LastName}', " +
-                        $"CanDrive = {Convert.ToInt32(user.CanDrive)} " +
-                        $"ModifiedDate = GETDATE()" +
-                        $"WHERE UserID = {user.UserID}";
-                    SqlCommand cmd = new SqlCommand(queryString, connection);
+                    string queryString =
+                        $"UPDATE Users SET " +
+                        $"Password = '@Password', " +
+                        $"Firstname = '@FistName', " +
+                        $"Lastname = '@LastName', " +
+                        $"CanDrive = @CanDrive " +
+                        $"WHERE UserID = @UserID";
+                    SqlCommand command = new SqlCommand(queryString, connection);
+
+                    command.Parameters.Add("@UserID", SqlDbType.Int);
+                    command.Parameters["@UserID"].Value = user.UserID;
+
+                    command.Parameters.Add("@Password", SqlDbType.NVarChar);
+                    command.Parameters["@Password"].Value = user.Password;
+
+                    command.Parameters.Add("@FirstName", SqlDbType.VarChar);
+                    command.Parameters["@FirstName"].Value = user.FirstName;
+
+                    command.Parameters.Add("@LastName", SqlDbType.VarChar);
+                    command.Parameters["@LastName"].Value = user.LastName;
+
+                    command.Parameters.Add("@CanDrive", SqlDbType.Bit);
+                    command.Parameters["@CanDrive"].Value = user.CanDrive;
+
+
                     connection.Open();
-                    cmd.BeginExecuteNonQuery();
+                    command.BeginExecuteNonQuery();
                 }
             }
             return GetUserByID(user.UserID);
         }
-
         public User DeleteUser(int userID, string password)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -122,13 +128,16 @@ namespace DataService
                 var userToDelete = GetUserByID(userID);
                 if (userToDelete.Password == password)
                 {
-                    string queryString = $"UPDATE Users SET Deleted = {!userToDelete.Deleted} WHERE UserID = {userID}" +
-                        $"UPDATE CarpoolPassengers SET Deleted = 1 WHERE PassengerID = {userID}" +
-                        $"UPDATE Carpools SET CarpoolDriverID = null, WHERE CarpoolDriverID = {userID}";
+                    string queryString =
+                        $"DELETE FROM Users WHERE UserID = @UserID" +
+                        $"DELETE FROM Carpools WHERE CarpoolDriverID = @UserID" +
+                        $"DELETE FROM CarpoolPassengers WHERE PassengerID = @UserID";
 
-                    SqlCommand cmd = new SqlCommand(queryString, connection);
+                    SqlCommand command = new SqlCommand(queryString, connection);
+                    command.Parameters.Add("@UserID", SqlDbType.Int);
+                    command.Parameters["@UserID"].Value = userID;
                     connection.Open();
-                    cmd.BeginExecuteNonQuery();
+                    command.BeginExecuteNonQuery();
                 }
             }
             return GetUserByID(userID);
