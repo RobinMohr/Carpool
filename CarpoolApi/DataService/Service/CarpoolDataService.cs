@@ -73,7 +73,7 @@ namespace TecAlliance.Carpools.Data.Service
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
 
-                if (reader.Read())
+                while (reader.Read())
                 {
                     allCarpools.Add(GetCarpool(reader));
                 }

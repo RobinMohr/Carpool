@@ -88,14 +88,9 @@ namespace TecAlliance.Carpools.Business.Service
         }
 
 
-        public List<CarpoolDto> GetCarpoolByID(int carpoolID)
-        {
-            var carpools = new List<CarpoolDto>();
-            foreach (var carpool in _newCarpoolDataService.GetCarpoolsByOneParameter("CarpoolID", carpoolID.ToString()))
-            {
-                carpools.Add(ConvertCarpoolToDto(carpool));
-            }
-            return carpools;
+        public CarpoolDto GetCarpoolByID(int carpoolID)
+        {            
+            return ConvertCarpoolToDto(_newCarpoolDataService.GetCarpoolsByOneParameter("CarpoolID", carpoolID.ToString())[0]);
         }
         public List<CarpoolDto> GetCarpoolsByDestination(string destination)
         {
@@ -107,7 +102,12 @@ namespace TecAlliance.Carpools.Business.Service
             return carpools;
         }
 
-        public List<CarpoolDto> GetCarpools
+        public List<CarpoolDto> GetCarpoolsByMultipleParameters(CarpoolDto paramsToLookFor)
+        {
+            List<(string,string)> values = new List<(string,string)>();
+
+            return null;
+        }
 
 
 

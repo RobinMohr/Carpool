@@ -20,14 +20,14 @@ namespace TecAlliance.Carpools.Api.Controllers
             _carpoolUserBusinessService = carpoolUserBusinessService;
         }
         [HttpGet]
-        [Route("Carpols/ID/{CarpoolID}")]
+        [Route("Carpols/byID/{CarpoolID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<CarpoolDto>>> GetCarpoolByID(int CarpoolID)
+        public async Task<ActionResult<CarpoolDto>> GetCarpoolByID(int CarpoolID)
         {
             try
             {
-                return _carpoolUserBusinessService.GetCarpoolByID(CarpoolID);
+                return _carpoolUserBusinessService.GetCarpoolByID(CarpoolID);               
             }
             catch
             {
@@ -36,14 +36,19 @@ namespace TecAlliance.Carpools.Api.Controllers
         }
 
         [HttpGet]
-        [Route("Carpols/Destination/{CarpoolDestination}")]
+        [Route("Carpols/ByDestination/{CarpoolDestination}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<CarpoolDto>>> GetCarpoolByDestination(string CarpoolDestination)
         {
             try
             {
-                return _carpoolUserBusinessService.GetCarpoolsByDestination(CarpoolDestination);
+                var carpoolWithGivenID = _carpoolUserBusinessService.GetCarpoolsByDestination(CarpoolDestination);
+                if(carpoolWithGivenID != null)
+                {
+                    return carpoolWithGivenID;
+                }
+                return NotFound();
             }
             catch
             {
@@ -52,80 +57,68 @@ namespace TecAlliance.Carpools.Api.Controllers
         }
 
 
-        //[HttpGet]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<ActionResult<List<CarpoolDto>>> GetAllCarpools()
-        //{
-        //    try
-        //    {
-        //        return _carpoolBusinessService.GetAllCarpools();
-        //    }
-        //    catch
-        //    {
-        //        return NotFound();
-        //    }
-        //}
+        [HttpGet]
+        [Route("Carpols/all")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<CarpoolDto>>> GetAllCarpools()
+        {
+            try
+            {
+                return _carpoolBusinessService.GetAllCarpools();
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+        [HttpPut]
+        [Route("Carpols/Password/{carpoolPassword}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CarpoolDto>> ChangeCarpoolDataByID(string carpoolPassword, CarpoolDto newCarpoolData)
+        {
+            try
+            {
+                var changedCarpool = _carpoolBusinessService.UpdateCarpoolByID(carpoolPassword, newCarpoolData);
+                if (changedCarpool == null)
+                {
+                    return BadRequest();
+                }
+                return changedCarpool;
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
 
-        //[HttpGet("{carpoolID}")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<ActionResult<CarpoolDto>> GetCarpoolByID(int carpoolID)
-        //{
-        //    try
-        //    {
-        //        return _carpoolBusinessService.GetCarpoolByID(carpoolID);
-        //    }
-        //    catch
-        //    {
-        //        return NotFound();
-        //    }
-        //}
-
-        //[HttpPut("{carpoolID}")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<ActionResult<CarpoolDto>> ChangeCarpoolDataByID(string carpoolPassword, CarpoolDto newCarpoolData)
-        //{
-        //    try
-        //    {
-        //        var changedCarpool = _carpoolBusinessService.UpdateCarpoolByID(carpoolPassword, newCarpoolData);
-        //        if (changedCarpool == null)
-        //        {
-        //            return BadRequest();
-        //        }
-        //        return changedCarpool;
-        //    }
-        //    catch
-        //    {
-        //        return BadRequest();
-        //    }
-        //}
-
-        //[HttpPut("join/{JoinID}")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<ActionResult<CarpoolDto>> JoinCarpool(int carpoolID, int userID,bool wantsToDrive)
-        //{
-        //    CarpoolDto joinedCarpool = _carpoolUserBusinessService.JoinCarpool(carpoolID, userID, wantsToDrive);
-        //    if (joinedCarpool == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return joinedCarpool;
-        //}
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<ActionResult<CarpoolDto>> CreateNewCarpool(CarpoolDto carpoolToCreate, string password)
-        //{
-        //    CarpoolDto addedCarpool = _carpoolUserBusinessService.CreateNewCarpool(carpoolToCreate, password);
-        //    if (addedCarpool == null)
-        //    {
-        //        return BadRequest();
-        //    }
-        //    return addedCarpool;
-        //}
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Route("Carpools/join/{carpoolID}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CarpoolDto>> JoinCarpool(int carpoolID, int userID, bool wantsToDrive)
+        {
+            CarpoolDto joinedCarpool = _carpoolUserBusinessService.JoinCarpool(carpoolID, userID, wantsToDrive);
+            if (joinedCarpool == null)
+            {
+                return NotFound();
+            }
+            return joinedCarpool;
+        }
+        [HttpPost]
+        [Route("Carpools/create/{carpoolID}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CarpoolDto>> CreateNewCarpool(CarpoolDto carpoolToCreate, string password)
+        {
+            CarpoolDto addedCarpool = _carpoolUserBusinessService.CreateNewCarpool(carpoolToCreate, password);
+            if (addedCarpool == null)
+            {
+                return BadRequest();
+            }
+            return addedCarpool;
+        }
 
 
     }

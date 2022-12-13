@@ -8,11 +8,12 @@ namespace DataService
     {
         private string connectionString = @"Data Source=localhost;Initial Catalog=CarpoolApp;Integrated Security=True;";
 
-        public void AddUser(User user)
+        public User AddUser(User user)
         {
             using SqlConnection connection = new SqlConnection(connectionString);
-            string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive)" +
-                $"VALUES('@UserPassword','@FirstName','@LastName',@CanDrive)";
+            string queryString = $"INSERT INTO Users(Password,Firstname,Lastname,CanDrive) " +
+                                     $"OUTPUT inserted.UserID " +
+                $"VALUES(@UserPassword,@FirstName,@LastName,@CanDrive)";
             SqlCommand command = new SqlCommand(queryString, connection);
 
             command.Parameters.Add("@UserPassword", SqlDbType.NVarChar);
@@ -28,7 +29,15 @@ namespace DataService
             command.Parameters["@CanDrive"].Value = Convert.ToInt32(user.CanDrive);
 
             connection.Open();
-            command.BeginExecuteNonQuery();
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                user.UserID = (int)reader["UserID"];
+                reader.Close();
+                return user;
+            }
+            connection.Close();
+            return null;
         }
         public List<User> GetAllUser()
         {
@@ -92,9 +101,9 @@ namespace DataService
                 {
                     string queryString =
                         $"UPDATE Users SET " +
-                        $"Password = '@Password', " +
-                        $"Firstname = '@FistName', " +
-                        $"Lastname = '@LastName', " +
+                        $"Password = @Password, " +
+                        $"Firstname = @FirstName, " +
+                        $"Lastname = @LastName, " +
                         $"CanDrive = @CanDrive " +
                         $"WHERE UserID = @UserID";
                     SqlCommand command = new SqlCommand(queryString, connection);
@@ -114,9 +123,12 @@ namespace DataService
                     command.Parameters.Add("@CanDrive", SqlDbType.Bit);
                     command.Parameters["@CanDrive"].Value = user.CanDrive;
 
-
                     connection.Open();
-                    command.BeginExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+                else
+                {
+                    return null;
                 }
             }
             return GetUserByID(user.UserID);
@@ -137,7 +149,7 @@ namespace DataService
                     command.Parameters.Add("@UserID", SqlDbType.Int);
                     command.Parameters["@UserID"].Value = userID;
                     connection.Open();
-                    command.BeginExecuteNonQuery();
+                    command.ExecuteNonQuery();
                 }
             }
             return GetUserByID(userID);

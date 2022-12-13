@@ -20,6 +20,7 @@ namespace TecAlliance.Carpools.Api.Controllers
         }
 
         [HttpGet]
+        [Route("Users/getAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<UserDto>>> GetAllUser()
@@ -34,7 +35,7 @@ namespace TecAlliance.Carpools.Api.Controllers
             }
         }
 
-        [HttpGet("{UserID}")]
+        [HttpGet("Users/GetByID{UserID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserDto>> GetUserByID(int UserID)
@@ -49,7 +50,8 @@ namespace TecAlliance.Carpools.Api.Controllers
             }
         }
 
-        [HttpPut("{OldPassword}")]
+        [HttpPut]
+        [Route("Users/ChangeUser/{OldPassword}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserDto>> UpdateUser(string OldPassword, User user)
@@ -65,6 +67,7 @@ namespace TecAlliance.Carpools.Api.Controllers
         }
 
         [HttpPost]
+        [Route("Users/createUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserDto>> CreateNewUser(string password, string firstname, string lastname, bool canDrive)
@@ -79,14 +82,15 @@ namespace TecAlliance.Carpools.Api.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("Users/DeletedByID/{userID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UserDto>> DeleteUser(int id, string password)
+        public async Task<ActionResult<UserDto>> DeleteUser(int userID, string password)
         {
             try
             {
-                return _userBusinessService.DeleteUserByID(id, password);
+                return _userBusinessService.DeleteUserByID(userID, password);
             }
             catch
             {
@@ -94,7 +98,8 @@ namespace TecAlliance.Carpools.Api.Controllers
             }
         }
 
-        [HttpGet("yourCarpools/userID")]
+        [HttpGet]
+        [Route("Users/getCarpoolsWithUserAsPassenger/{userID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<CarpoolDto>>> ViewCurrentCarpools(int userID)

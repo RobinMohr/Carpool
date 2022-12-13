@@ -9,7 +9,7 @@ namespace TecAlliance.Carpools.Business.Service
         CarpoolDto CreateNewCarpool(CarpoolDto carpoolToCreate, string password);
         List<CarpoolDto> CurrentCarpoolsWhereUserIsPassenger(int userID);
         List<CarpoolDto> GetCarpoolsByDestination(string destination);
-        List<CarpoolDto> GetCarpoolByID(int carpoolID);
+        CarpoolDto GetCarpoolByID(int carpoolID);
         CarpoolDto JoinCarpool(int carpoolID, int userID, bool wantsToDrive);
     }
 }

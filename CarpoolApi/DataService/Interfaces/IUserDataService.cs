@@ -4,7 +4,7 @@ namespace DataService
 {
     public interface IUserDataService
     {
-        void AddUser(User user);
+        User AddUser(User user);
         User DeleteUser(int userID, string password);
         List<User> GetAllUser();
         User GetUserByID(int userId);

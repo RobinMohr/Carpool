@@ -1,5 +1,7 @@
 USE CarpoolApp
 
+Select * FROM Users
+
 CREATE TABLE Users(
 UserID int IDENTITY(0,1) PRIMARY KEY,
 Password NVARCHAR(50) NOT NULL,

@@ -46,8 +46,7 @@ namespace TecAlliance.Carpools.Business
 
         public UserDto CreateNewUser(string password, string firstname, string lastname, bool canDrive)
         {
-            _userDataService.AddUser(new User(0, password, firstname, lastname, canDrive));
-            return ConvertUserToDto(new User(0, password, firstname, lastname, canDrive));
+            return ConvertUserToDto(_userDataService.AddUser(new User(0, password, firstname, lastname, canDrive)));
         }
 
         public UserDto DeleteUserByID(int userID, string password)
